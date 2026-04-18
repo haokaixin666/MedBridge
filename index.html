@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MedBridge · 跨国医疗 · 可翻页</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: #e9eef3;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 16px 0 40px 0;
+        }
+
+        /* 手机卡片容器 */
+        .phone-frame {
+            width: 100%;
+            max-width: 375px;
+            background: #ffffff;
+            border-radius: 32px 32px 20px 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .app-container {
+            height: auto;
+            background: #f8fafd;
+            padding-bottom: 70px; /* 底部导航占位 */
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 20px 6px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e2a3a;
+            background: #ffffff;
+        }
+
+        /* 头部 (所有页面共用) */
+        .global-header {
+            padding: 4px 20px 12px 20px;
+            background: white;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 🌍 地球图标 */
+        .logo-icon {
+            background: #0b4f8c;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b2b44;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: #0077be;
+            font-weight: 300;
+            margin-left: 2px;
+        }
+
+        .lang-switcher {
+            background: #f0f4fa;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e3a6b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-switcher i {
+            font-size: 12px;
+            color: #4f6f9f;
+        }
+
+        .search-bar {
+            background: #f0f4fa;
+            border-radius: 30px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6b7a8f;
+            font-size: 15px;
+        }
+
+        .search-bar i {
+            color: #2d4c7c;
+        }
+
+        /* 页面内容区域 — 每个页面独立 */
+        .page {
+            display: none; /* 默认隐藏 */
+        }
+
+        .page.active-page {
+            display: block; /* 显示当前页面 */
+        }
+
+        /* 热门搜索词 */
+        .hot-search {
+            padding: 12px 20px 0 20px;
+            background: white;
+            font-size: 13px;
+            color: #7e8c9e;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hot-search span {
+            background: #f0f5fb;
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: #1e3b5c;
+        }
+
+        /* 功能网格 4x2 */
+        .grid-4x2 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px 8px;
+            padding: 20px 16px;
+            background: white;
+            margin-top: 4px;
+        }
+
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #2b3e55;
+        }
+
+        .grid-item i {
+            font-size: 22px;
+            background: #e7f0fe;
+            padding: 12px;
+            border-radius: 20px;
+            color: #1364a8;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 横向滑动标签 */
+        .scroll-tags {
+            padding: 8px 0 16px 16px;
+            background: white;
+            border-bottom: 1px solid #ecf3fa;
+        }
+
+        .tags-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tags-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tag {
+            background: #f0f6fd;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #194a79;
+            flex-shrink: 0;
+            border: 1px solid #dae9f5;
+        }
+
+        .tag i {
+            margin-right: 6px;
+            font-size: 12px;
+            color: #2875b5;
+        }
+
+        /* 紧急救援卡片 */
+        .emergency-card {
+            background: #c5312c;
+            background: linear-gradient(145deg, #d63f3a, #b62520);
+            margin: 16px 16px 20px 16px;
+            border-radius: 24px;
+            padding: 18px 20px;
+            color: white;
+            box-shadow: 0 8px 14px rgba(190, 50, 40, 0.3);
+        }
+
+        .emergency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .emergency-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .call-btn {
+            background: white;
+            color: #c22a24;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .team-status {
+            font-size: 15px;
+            font-weight: 500;
+            margin: 10px 0 14px 0;
+            opacity: 0.95;
+        }
+
+        .emergency-footer {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 14px;
+        }
+
+        /* 横向滑动医生卡片 */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 16px 8px 16px;
+            font-weight: 600;
+            color: #1f2c40;
+        }
+
+        .doctors-scroll {
+            padding-left: 16px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            display: flex;
+            gap: 14px;
+            scrollbar-width: none;
+        }
+
+        .doctors-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .doctor-card {
+            background: white;
+            border-radius: 22px;
+            padding: 16px 14px;
+            width: 150px;
+            flex-shrink: 0;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.03);
+            border: 1px solid #eef3f9;
+        }
+
+        .doc-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .doc-title {
+            font-size: 13px;
+            color: #5e6f86;
+            margin-bottom: 6px;
+        }
+
+        .doc-number {
+            background: #f2f6fb;
+            padding: 4px 8px;
+            border-radius: 16px;
+            font-size: 11px;
+            color: #3b5675;
+            display: inline-block;
+        }
+
+        /* 用药翻译卡片 */
+        .translation-card {
+            background: white;
+            margin: 20px 16px;
+            border-radius: 28px;
+            padding: 20px;
+            box-shadow: 0 8px 22px rgba(0, 30, 60, 0.06);
+            border: 1px solid #e6edf6;
+        }
+
+        .trans-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .input-row {
+            background: #f2f8ff;
+            border-radius: 18px;
+            padding: 12px 16px;
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #cdddec;
+        }
+
+        .input-row i {
+            color: #2f6192;
+        }
+
+        .input-row input {
+            background: transparent;
+            border: none;
+            width: 100%;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .translate-result {
+            background: #f2f5fa;
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #153e62;
+        }
+
+        .en-label {
+            color: #1364a8;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .chinese-name {
+            background: #e3ecf5;
+            padding: 6px 10px;
+            border-radius: 14px;
+            font-size: 13px;
+            margin: 10px 0 8px 0;
+        }
+
+        .long-text {
+            font-size: 13px;
+            color: #2a405b;
+            line-height: 1.5;
+            background: white;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid #dde5ef;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+
+        .action-buttons button {
+            background: #edf3fa;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #1b4b77;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+
+        /* 登记服务卡片 */
+        .register-card {
+            background: #ffffff;
+            margin: 0 16px 24px 16px;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #ddeaf5;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.02);
+        }
+
+        .reg-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #0b3f5e;
+        }
+
+        .phone-input, .code-input {
+            background: #f3f9ff;
+            border-radius: 18px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #d2e0ed;
+        }
+
+        .phone-input input, .code-input input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .login-actions {
+            display: flex;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .login-btn {
+            background: #0b4f8c;
+            color: white;
+            flex: 2;
+            border: none;
+            border-radius: 40px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .register-btn {
+            background: #e3eefc;
+            color: #1b4b77;
+            flex: 1;
+            border: none;
+            border-radius: 40px;
+            padding: 14px;
+            font-weight: 600;
+        }
+
+        .service-terms {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 12px;
+            color: #778ea8;
+        }
+
+        /* 健康档案入口 (用于首页) */
+        .health-archive-row {
+            background: white;
+            padding: 12px 20px;
+            margin: 8px 16px 20px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #d8e6f5;
+        }
+
+        .archive-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .archive-left i {
+            font-size: 24px;
+            background: #ddedfc;
+            padding: 10px;
+            border-radius: 16px;
+            color: #0b4f8c;
+        }
+
+        .small-note {
+            font-size: 12px;
+            color: #8e9fb1;
+        }
+
+        /* 底部导航栏 (五个按钮) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            max-width: 375px;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #e4eef9;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 14px 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.02);
+            cursor: pointer;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #6a7e9b;
+            gap: 4px;
+            transition: color 0.1s;
+        }
+
+        .nav-item.active {
+            color: #1364a8;
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        /* 其他页面的简单样式 (服务、预约、健康档案、我的) */
+        .placeholder-page {
+            padding: 20px 16px;
+        }
+
+        .placeholder-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #eaf0f8;
+        }
+
+        .placeholder-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0b3f5e;
+            margin-bottom: 12px;
+        }
+
+        .placeholder-text {
+            color: #4d627a;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .service-list-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf3fa;
+        }
+
+        .service-list-item i {
+            width: 40px;
+            height: 40px;
+            background: #e7f0fe;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1364a8;
+            font-size: 20px;
+        }
+
+        .bottom-placeholder {
+            height: 70px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- 固定状态栏和头部 (所有页面共用) -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span>
+        </div>
+        <div class="global-header">
+            <div class="header-top">
+                <div class="logo-area">
+                    <div class="logo-icon">🌍</div>
+                    <div class="logo-text">Med<span>Bridge</span></div>
+                </div>
+                <div class="lang-switcher">
+                    <i class="fas fa-globe"></i> 中文 <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <span>Q 搜索医生、药品、疾病...</span>
+            </div>
+        </div>
+
+        <!-- 页面容器 (app-container 包含所有page) -->
+        <div class="app-container">
+            <!-- 首页页面 (包含几乎所有核心模块) -->
+            <div id="page-home" class="page active-page">
+                <!-- 热门搜索词 -->
+                <div class="hot-search">
+                    <span>相染</span>
+                    <span>何瑞监供任务</span>
+                    <span>投索?</span>
+                    <span>远程保造</span>
+                </div>
+
+                <!-- 功能网格 -->
+                <div class="grid-4x2">
+                    <div class="grid-item"><i class="fas fa-stethoscope"></i><span>在线问诊</span></div>
+                    <div class="grid-item"><i class="fas fa-pills"></i><span>药品购买</span></div>
+                    <div class="grid-item"><i class="fas fa-folder-open"></i><span>健康档案</span></div>
+                    <div class="grid-item"><i class="fas fa-calendar-check"></i><span>预约挂号</span></div>
+                    <div class="grid-item"><i class="fas fa-file-alt"></i><span>检查报告</span></div>
+                    <div class="grid-item"><i class="fas fa-truck"></i><span>药品配送</span></div>
+                    <div class="grid-item"><i class="fas fa-heartbeat"></i><span>健康咨询</span></div>
+                    <div class="grid-item"><i class="fas fa-notes-medical"></i><span>远程医疗</span></div>
+                </div>
+
+                <!-- 横向滑动标签 -->
+                <div class="scroll-tags">
+                    <div class="tags-container">
+                        <span class="tag"><i class="fas fa-language"></i> 中文</span>
+                        <span class="tag">English</span>
+                        <span class="tag">Español</span>
+                        <span class="tag">日本語</span>
+                        <span class="tag">Français</span>
+                        <span class="tag">医疗分析</span>
+                        <span class="tag">交气排行</span>
+                        <span class="tag">安全服务</span>
+                        <span class="tag">UBE医药</span>
+                        <span class="tag">安付通控</span>
+                        <span class="tag">医疗管理</span>
+                        <span class="tag">治疗交进</span>
+                    </div>
+                </div>
+
+                <!-- 紧急救援卡片 -->
+                <div class="emergency-card">
+                    <div class="emergency-header">
+                        <h3>紧急救援</h3>
+                        <button class="call-btn"><i class="fas fa-phone-alt"></i> 立即呼叫</button>
+                    </div>
+                    <div class="team-status">医疗团队已就位</div>
+                    <div class="emergency-footer">
+                        <span><i class="fas fa-globe"></i> 语言选择</span>
+                        <span><i class="fas fa-file-contract"></i> 服务条款</span>
+                    </div>
+                </div>
+
+                <!-- 科室快速选择 -->
+                <div style="padding: 0 16px 8px 16px;">
+                    <div style="display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 4px;">
+                        <span style="background: #1364a8; color: white; padding: 6px 18px; border-radius: 30px;">内科</span>
+                        <span style="background: #ecf3fa; padding: 6px 18px; border-radius: 30px;">外科</span>
+                        <span style="background: #ecf3fa; padding: 6px 18px; border-radius: 30px;">儿科</span>
+                        <span style="background: #ecf3fa; padding: 6px 18px; border-radius: 30px;">妇产科</span>
+                        <span style="background: #ecf3fa; padding: 6px 18px; border-radius: 30px;">皮肤科</span>
+                    </div>
+                </div>
+
+                <!-- 推荐医生 -->
+                <div class="section-title">
+                    <span>推荐医生</span>
+                    <span style="color:#1e6bb8;">医生列表 &gt;</span>
+                </div>
+                <div class="doctors-scroll">
+                    <div class="doctor-card">
+                        <div class="doc-name">刘佳琦 李除</div>
+                        <div class="doc-title">号：增长3922</div>
+                        <span class="doc-number">职长:3922</span>
+                    </div>
+                    <div class="doctor-card">
+                        <div class="doc-name">刘佳瑞 李佳</div>
+                        <div class="doc-title">职号：增长7998</div>
+                        <span class="doc-number">↑7998</span>
+                    </div>
+                    <div class="doctor-card">
+                        <div class="doc-name">刘兰瑞 辛县</div>
+                        <div class="doc-title">职长：增长2799</div>
+                        <span class="doc-number">2799</span>
+                    </div>
+                    <div class="doctor-card">
+                        <div class="doc-name">刘佳玛 张浔</div>
+                        <div class="doc-title">职长：增长7999</div>
+                        <span class="doc-number">7999</span>
+                    </div>
+                    <div class="doctor-card">
+                        <div class="doc-name">刘林伴 张</div>
+                        <div class="doc-title">职长：增长1823</div>
+                        <span class="doc-number">1823</span>
+                    </div>
+                </div>
+
+                <!-- 用药翻译卡片 -->
+                <div class="translation-card">
+                    <div class="trans-title"><i class="fas fa-language" style="color: #1364a8;"></i> 用药翻译</div>
+                    <div class="input-row">
+                        <i class="fas fa-capsules"></i>
+                        <input type="text" placeholder="请输入药品名称（中文/英文）" value="阿司匹林">
+                    </div>
+                    <div class="translate-result">
+                        <div class="result-label">翻译结果 · 英文对照</div>
+                        <div class="en-label">药品</div>
+                        <div class="chinese-name">中文药品名称 2012-1:00</div>
+                        <div class="long-text">
+                            Fecominiscras coduced wihutan elschwert om vedhion other ce doldet io anogormen of uition naddognde fenooer ration ole rectisarch, nonthen 8200de.
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button><i class="fas fa-exchange-alt"></i> 语言切换</button>
+                        <button><i class="fas fa-bookmark"></i> 保存记录</button>
+                    </div>
+                </div>
+
+                <!-- 健康档案入口 -->
+                <div class="health-archive-row">
+                    <div class="archive-left">
+                        <i class="fas fa-notes-medical"></i>
+                        <div>
+                            <div style="font-weight:600;">健康档案</div>
+                            <div class="small-note">远程 · 保造 · 药品配送</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#467ba7;"></i>
+                </div>
+
+                <!-- 登记服务卡片 -->
+                <div class="register-card">
+                    <div class="reg-title">跨国医疗 · 登记服务</div>
+                    <div class="phone-input">
+                        <i class="fas fa-mobile-alt"></i>
+                        <input type="tel" placeholder="手机号 请输入">
+                    </div>
+                    <div class="code-input">
+                        <i class="fas fa-shield-alt"></i>
+                        <input type="text" placeholder="验证码">
+                        <span style="color:#1364a8; font-weight:500;">获取</span>
+                    </div>
+                    <div class="login-actions">
+                        <button class="login-btn">登录</button>
+                        <button class="register-btn">注册</button>
+                    </div>
+                    <div class="service-terms">
+                        <i class="far fa-check-circle"></i> 同意《服务条款》和《隐私政策》
+                    </div>
+                </div>
+
+                <!-- 额外标签 -->
+                <div style="display: flex; gap: 12px; padding: 0 16px 20px 16px; color: #2a4e77;">
+                    <span style="background:#e3efff; padding:6px 16px; border-radius:30px;"><i class="far fa-calendar"></i> 预约挂号</span>
+                    <span style="background:#e3efff; padding:6px 16px; border-radius:30px;"><i class="far fa-file-pdf"></i> 检查报告</span>
+                    <span style="background:#e3efff; padding:6px 16px; border-radius:30px;"><i class="fas fa-language"></i> 多语种</span>
+                </div>
+
+                <div class="bottom-placeholder"></div>
+            </div>
+
+            <!-- 服务页面 -->
+            <div id="page-service" class="page">
+                <div class="placeholder-page">
+                    <div class="placeholder-card">
+                        <div class="placeholder-title">⚕️ 医疗服务</div>
+                        <div class="service-list-item">
+                            <i class="fas fa-stethoscope"></i>
+                            <div><strong>在线问诊</strong><br>与医生实时沟通</div>
+                        </div>
+                        <div class="service-list-item">
+                            <i class="fas fa-pills"></i>
+                            <div><strong>药品购买</strong><br>处方药一键到家</div>
+                        </div>
+                        <div class="service-list-item">
+                            <i class="fas fa-file-alt"></i>
+                            <div><strong>检查报告</strong><br>快速查阅结果</div>
+                        </div>
+                        <div class="service-list-item">
+                            <i class="fas fa-truck"></i>
+                            <div><strong>药品配送</strong><br>追踪物流</div>
+                        </div>
+                    </div>
+                    <div class="placeholder-card">
+                        <div class="placeholder-title">🌐 跨国医疗特色</div>
+                        <div class="placeholder-text">多语言咨询 · 国际会诊 · 海外药品直邮</div>
+                    </div>
+                </div>
+                <div class="bottom-placeholder"></div>
+            </div>
+
+            <!-- 预约页面 -->
+            <div id="page-appointment" class="page">
+                <div class="placeholder-page">
+                    <div class="placeholder-card">
+                        <div class="placeholder-title">📅 预约挂号</div>
+                        <div style="background: #f3f9ff; padding: 16px; border-radius: 20px; margin-bottom: 16px;">
+                            <div style="display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px;">
+                                <span style="background:#1364a8; color:white; padding:6px 16px; border-radius:30px;">内科</span>
+                                <span style="background:#ecf3fa; padding:6px 16px; border-radius:30px;">外科</span>
+                                <span style="background:#ecf3fa; padding:6px 16px; border-radius:30px;">儿科</span>
+                            </div>
+                            <div class="doctor-card" style="width:100%; margin-bottom:12px;">
+                                <div class="doc-name">刘佳琦 主任</div>
+                                <div class="doc-title">内科 | 剩余号源 5</div>
+                            </div>
+                            <div class="doctor-card" style="width:100%;">
+                                <div class="doc-name">李敏 副主任</div>
+                                <div class="doc-title">外科 | 剩余号源 12</div>
+                            </div>
+                        </div>
+                        <button style="background:#0b4f8c; color:white; border:none; width:100%; padding:14px; border-radius:40px; font-weight:600;">立即预约</button>
+                    </div>
+                </div>
+                <div class="bottom-placeholder"></div>
+            </div>
+
+            <!-- 健康档案页面 -->
+            <div id="page-archive" class="page">
+                <div class="placeholder-page">
+                    <div class="placeholder-card">
+                        <div class="placeholder-title">📁 我的健康档案</div>
+                        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 20px;">
+                            <i class="fas fa-user-circle" style="font-size: 48px; color:#1364a8;"></i>
+                            <div>
+                                <div style="font-weight:700; font-size:18px;">张明</div>
+                                <div style="color:#5f748e;">45岁 · 男 · 血型A</div>
+                            </div>
+                        </div>
+                        <div class="service-list-item"><i class="fas fa-file-medical"></i> <span>体检报告 (2025-02-10)</span></div>
+                        <div class="service-list-item"><i class="fas fa-prescription"></i> <span>用药记录 · 阿司匹林</span></div>
+                        <div class="service-list-item"><i class="fas fa-heartbeat"></i> <span>血压监测 120/80</span></div>
+                    </div>
+                </div>
+                <div class="bottom-placeholder"></div>
+            </div>
+
+            <!-- 我的页面 -->
+            <div id="page-profile" class="page">
+                <div class="placeholder-page">
+                    <div class="placeholder-card">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                            <i class="fas fa-user-circle" style="font-size: 56px; color:#0b4f8c;"></i>
+                            <div>
+                                <div style="font-weight:700; font-size:20px;">王丽</div>
+                                <div style="color:#5f748e;">+86 138****2210</div>
+                            </div>
+                        </div>
+                        <div class="service-list-item"><i class="fas fa-history"></i> <span>问诊记录</span></div>
+                        <div class="service-list-item"><i class="fas fa-dollar-sign"></i> <span>我的订单</span></div>
+                        <div class="service-list-item"><i class="fas fa-cog"></i> <span>设置</span></div>
+                        <div class="service-list-item"><i class="fas fa-headset"></i> <span>联系客服</span></div>
+                    </div>
+                </div>
+                <div class="bottom-placeholder"></div>
+            </div>
+        </div>
+
+        <!-- 底部导航 (点击翻页) -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-page="home"><i class="fas fa-home"></i><span>首页</span></div>
+            <div class="nav-item" data-page="service"><i class="fas fa-hand-holding-medical"></i><span>服务</span></div>
+            <div class="nav-item" data-page="appointment"><i class="far fa-calendar-alt"></i><span>预约</span></div>
+            <div class="nav-item" data-page="archive"><i class="fas fa-file-medical"></i><span>健康档案</span></div>
+            <div class="nav-item" data-page="profile"><i class="fas fa-user-circle"></i><span>我的</span></div>
+        </div>
+    </div>
+
+    <!-- 简单的翻页脚本 -->
+    <script>
+        (function() {
+            const pages = {
+                home: document.getElementById('page-home'),
+                service: document.getElementById('page-service'),
+                appointment: document.getElementById('page-appointment'),
+                archive: document.getElementById('page-archive'),
+                profile: document.getElementById('page-profile')
+            };
+
+            const navItems = document.querySelectorAll('.nav-item');
+
+            function showPage(pageId) {
+                // 隐藏所有页面
+                Object.values(pages).forEach(p => p.classList.remove('active-page'));
+                // 显示选中页面
+                if (pages[pageId]) pages[pageId].classList.add('active-page');
+                // 更新导航active样式
+                navItems.forEach(item => {
+                    if (item.dataset.page === pageId) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+
+            // 添加点击事件
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const pageId = item.dataset.page;
+                    if (pageId) showPage(pageId);
+                });
+            });
+
+            // 默认首页已激活
+        })();
+    </script>
+</body>
+</html>
